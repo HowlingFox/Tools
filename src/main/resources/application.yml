@@ -16,11 +16,6 @@ spring:
     from: lujie_dev@outlook.com
     username: lujie_dev@outlook.com
     password: lujie@2022
-#    properties.mail.smtp.port: 587
-#    properties.mail.smtp.starttls.enable: true
-#    properties.mail.smtp.starttls.required: false
-#    properties.mail.smtp.ssl.enable: false
-#    properties.mail.debug: true
     default-encoding: utf-8
     properties:
       mail:
@@ -30,9 +25,12 @@ spring:
             enable: true
             required: false
           ssl:
-            enable: false
+#            enable: false
             trust: smtp.office365.com
+          auth: true
         debug: true
+        transport:
+          protocol: smtp
 
 http:
   a: 1

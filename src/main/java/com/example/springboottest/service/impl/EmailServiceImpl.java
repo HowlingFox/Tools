@@ -44,6 +44,10 @@ public class EmailServiceImpl implements EmailService {
     //注入配置文件中配置的信息——>from
     @Value("${spring.mail.from}")
     private String from;
+    @Value("${spring.mail.username}")
+    private String username;
+    @Value("${spring.mail.password}")
+    private String password;
 
     private static Properties props;
     private static Session session;
@@ -106,7 +110,7 @@ public class EmailServiceImpl implements EmailService {
 
     /**
      * 推送日程（outlook）
-     * @param enailFrom 发件人
+     * @param emailFrom 发件人
      * @param mailTo 收件人
      * @param organizer 组织者
      * @param participant 参与者
@@ -119,14 +123,10 @@ public class EmailServiceImpl implements EmailService {
      * @param msg 邮件正文
      */
     @Override
-    public void sendMeetingInvitationEmail(String enailFrom,String mailTo,String organizer,String participant,
+    public void sendMeetingInvitationEmail(String emailFrom,String mailTo,String organizer,String participant,
             String subject, String startDate, String endDate, String location, String describe, String trigger, String msg) {
         try {
             props = new Properties();
-            //发件人
-            String fromEmail = props.getProperty("fromEmail", enailFrom);
-            //收件人(会议官)
-            String toEmail = props.getProperty("toEmail", mailTo);
             props.put("mail.smtp.port", "587");
             props.put("mail.smtp.host", "smtp.office365.com");
             //当前smtp host设为可信任 否则抛出javax.mail.MessagingException: Could not  convert socket to TLS
@@ -140,17 +140,13 @@ public class EmailServiceImpl implements EmailService {
             Authenticator authenticator = new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    //发件人邮箱账号
-                    String userId = props.getProperty("userId", "lujie_dev@outlook.com");
-                    //发件人邮箱密码(qq、163等邮箱用的是授权码,outlook是密码)
-                    String password = props.getProperty("password", "lujie@2022");
-                    return new PasswordAuthentication(userId, password);
+                    return new PasswordAuthentication(username, password);
                 }
             };
             session = Session.getInstance(props, authenticator);
             MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(fromEmail));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(toEmail));
+            message.setFrom(new InternetAddress(emailFrom));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailTo));
             //标题
             message.setSubject(subject);
             //开始时间
